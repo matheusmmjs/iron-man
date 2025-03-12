@@ -1,8 +1,8 @@
 import "./globals.css";
-import Header from "@/components/header";
 import { Metadata } from "next";
 import { cn } from "@/lib/utils";
 import { Inter } from "next/font/google";
+import { Sidebar } from "@/components/sidebar";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -37,8 +37,8 @@ export default function RootLayout({
           "min-h-screen bg-background font-sans antialiased",
           inter.className
       )}>
-        <Header />
-        
+        <Sidebar />
+
         {children}
       </body>
     </html>
