@@ -1,5 +1,6 @@
 import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
+import { Button } from "@/components/ui/button";
 
 export async function addClient(data: FormData) {
   "use server";
@@ -104,12 +105,9 @@ export default async function Clients() {
             placeholder="Endereço"
             className="border rounded-md p-2 w-full"
           />
-          <button
-            type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-          >
+          <Button type="submit">
             Adicionar
-          </button>
+          </Button>
         </div>
       </form>
 

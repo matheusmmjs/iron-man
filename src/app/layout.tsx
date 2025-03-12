@@ -1,6 +1,12 @@
 import "./globals.css";
 import Header from "@/components/header";
 import { Metadata } from "next";
+import { cn } from "@/lib/utils";
+import { Inter } from "next/font/google";
+
+const inter = Inter({
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "Sistema de gestão para o seu estúdio",
@@ -27,7 +33,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`antialiased`}>
+      <body className= {cn(
+          "min-h-screen bg-background font-sans antialiased",
+          inter.className
+      )}>
         <Header />
         
         {children}
