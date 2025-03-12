@@ -3,17 +3,21 @@ import prisma from "@/lib/prisma";
 
 export async function addClient(data: FormData) {
   "use server";
+  const cpf = data.get("cpf")?.toString();
   const name = data.get("name")?.toString();
   const email = data.get("email")?.toString();
+  const phone = data.get("phone")?.toString();
+  const address = data.get("address")?.toString();
+  const birthDate = data.get("birthDate") ? new Date(data.get("birthDate")!.toString()) : null;
 
-  if (!name || !email) {
-    throw new Error("Nome e email são obrigatórios.");
+  if (!cpf || !name || !email) {
+      throw new Error("CPF, nome e email são obrigatórios.");
   }
 
   await prisma.client.upsert({
-    where: { email },
-    update: { name },
-    create: { name, email },
+    where: { cpf },
+    update: { name, phone, address, birthDate, email },
+    create: { name, email, cpf, phone, address, birthDate },
   });
 
   revalidatePath("/clients");
@@ -24,14 +28,18 @@ export async function updateClient(data: FormData) {
   const id = Number(data.get("id"));
   const name = data.get("name")?.toString();
   const email = data.get("email")?.toString();
+  const cpf = data.get("cpf")?.toString();
+  const phone = data.get("phone")?.toString();
+  const address = data.get("address")?.toString();
+  const birthDate = data.get("birthDate") ? new Date(data.get("birthDate")!.toString()) : null;
 
-  if (!id || !name || !email) {
-    throw new Error("ID, nome e email são obrigatórios.");
+  if (!id || !name || !email || !cpf) {
+    throw new Error("ID, nome, email e CPF são obrigatórios.");
   }
 
   await prisma.client.update({
     where: { id },
-    data: { name, email },
+    data: { name, email, phone, address, birthDate },
   });
 
   revalidatePath("/clients");
@@ -39,14 +47,14 @@ export async function updateClient(data: FormData) {
 
 export async function deleteClient(data: FormData) {
   "use server";
-  const id = Number(data.get("id"));
+  const cpf = data.get("cpf")?.toString();
 
-  if (!id) {
-    throw new Error("ID é obrigatório.");
+  if (!cpf) {
+    throw new Error("CPF é obrigatório.");
   }
 
   await prisma.client.delete({
-    where: { id },
+    where: { cpf },
   });
 
   revalidatePath("/clients");
@@ -76,6 +84,26 @@ export default async function Clients() {
             className="border rounded-md p-2 w-full"
             required
           />
+          <input
+            type="text"
+            name="cpf"
+            placeholder="CPF"
+            className="border rounded-md p-2 w-full"
+            required
+          />
+          <input
+            type="text"
+            name="phone"
+            placeholder="Telefone"
+            className="border rounded-md p-2 w-full"
+            required
+          />
+          <input
+            type="text"
+            name="address"
+            placeholder="Endereço"
+            className="border rounded-md p-2 w-full"
+          />
           <button
             type="submit"
             className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
@@ -88,52 +116,23 @@ export default async function Clients() {
       <table className="w-full border-collapse border border-gray-200">
         <thead>
           <tr className="bg-gray-100">
-            <th className="border border-gray-200 p-2 text-left">ID</th>
+            <th className="border border-gray-200 p-2 text-left">CPF</th>
             <th className="border border-gray-200 p-2 text-left">Nome</th>
             <th className="border border-gray-200 p-2 text-left">Email</th>
-            <th className="border border-gray-200 p-2 text-center">Ações</th>
+            <th className="border border-gray-200 p-2 text-left">Telefone</th>
+            <th className="border border-gray-200 p-2 text-left">Endereço</th>
+            <th className="border border-gray-200 p-2 text-left">Data de Nascimento</th>
           </tr>
         </thead>
         <tbody>
           {clients.map((client) => (
-            <tr key={client.id} className="hover:bg-gray-50">
-              <td className="border border-gray-200 p-2">{client.id}</td>
+            <tr key={client.cpf} className="hover:bg-gray-50">
+              <td className="border border-gray-200 p-2">{client.cpf}</td>
               <td className="border border-gray-200 p-2">{client.name}</td>
               <td className="border border-gray-200 p-2">{client.email}</td>
-              <td className="border border-gray-200 p-2 text-center">
-                <form action={updateClient} className="inline-block">
-                  <input type="hidden" name="id" value={client.id} />
-                  <input
-                    type="text"
-                    name="name"
-                    defaultValue={client.name}
-                    className="border rounded-md p-1 mr-2"
-                    required
-                  />
-                  <input
-                    type="email"
-                    name="email"
-                    defaultValue={client.email}
-                    className="border rounded-md p-1 mr-2"
-                    required
-                  />
-                  <button
-                    type="submit"
-                    className="text-green-500 hover:underline mr-2"
-                  >
-                    Salvar
-                  </button>
-                </form>
-                <form action={deleteClient} className="inline-block">
-                  <input type="hidden" name="id" value={client.id} />
-                  <button
-                    type="submit"
-                    className="text-red-500 hover:underline"
-                  >
-                    Excluir
-                  </button>
-                </form>
-              </td>
+              <td className="border border-gray-200 p-2">{client.phone}</td>
+              <td className="border border-gray-200 p-2">{client.address}</td>
+              <td className="border border-gray-200 p-2">{client.birthDate}</td>
             </tr>
           ))}
         </tbody>
