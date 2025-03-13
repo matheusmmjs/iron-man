@@ -7,12 +7,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Company {
+  cnpj     String  @id
+  name     String
+  email    String  @unique
+  phone    String
+  address  String
+  isActive Boolean @default(true)
+  User     User[]
+}
+
+model User {
+  cpf       String   @id
+  name      String
+  email     String   @unique
+  phone     String
+  address   String
+  birthDate DateTime
+  isActive  Boolean  @default(true)
+  jobTitle  String?
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [cnpj])
+}
+
 model Client {
-  cpf         String  @id // CPF como chave primária
-  name        String
-  email       String  @unique
-  phone       String? // Número de telefone (opcional)
-  address     String? // Endereço (opcional)
-  birthDate   DateTime? // Data de nascimento (opcional)
-  isActive    Boolean @default(true) // Indica se o cliente está ativo
+  cpf       String   @id
+  name      String
+  email     String   @unique
+  phone     String
+  address   String
+  birthDate DateTime
+  isActive  Boolean  @default(true)
 }

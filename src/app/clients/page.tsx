@@ -1,140 +1,136 @@
-import { revalidatePath } from "next/cache";
-import prisma from "@/lib/prisma";
+import { revalidateTag } from "next/cache";
 import { Button } from "@/components/ui/button";
-
-export async function addClient(data: FormData) {
-  "use server";
-  const cpf = data.get("cpf")?.toString();
-  const name = data.get("name")?.toString();
-  const email = data.get("email")?.toString();
-  const phone = data.get("phone")?.toString();
-  const address = data.get("address")?.toString();
-  const birthDate = data.get("birthDate") ? new Date(data.get("birthDate")!.toString()) : null;
-
-  if (!cpf || !name || !email) {
-      throw new Error("CPF, nome e email são obrigatórios.");
-  }
-
-  await prisma.client.upsert({
-    where: { cpf },
-    update: { name, phone, address, birthDate, email },
-    create: { name, email, cpf, phone, address, birthDate },
-  });
-
-  revalidatePath("/clients");
-}
-
-export async function updateClient(data: FormData) {
-  "use server";
-  const id = Number(data.get("id"));
-  const name = data.get("name")?.toString();
-  const email = data.get("email")?.toString();
-  const cpf = data.get("cpf")?.toString();
-  const phone = data.get("phone")?.toString();
-  const address = data.get("address")?.toString();
-  const birthDate = data.get("birthDate") ? new Date(data.get("birthDate")!.toString()) : null;
-
-  if (!id || !name || !email || !cpf) {
-    throw new Error("ID, nome, email e CPF são obrigatórios.");
-  }
-
-  await prisma.client.update({
-    where: { id },
-    data: { name, email, phone, address, birthDate },
-  });
-
-  revalidatePath("/clients");
-}
-
-export async function deleteClient(data: FormData) {
-  "use server";
-  const cpf = data.get("cpf")?.toString();
-
-  if (!cpf) {
-    throw new Error("CPF é obrigatório.");
-  }
-
-  await prisma.client.delete({
-    where: { cpf },
-  });
-
-  revalidatePath("/clients");
-}
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { UserPlus, Users } from "lucide-react";
+import { columns } from "./columns"
+import { DataTable } from "./data-table"
 
 export default async function Clients() {
-  const clients = await prisma.client.findMany();
+  async function getClient() {
+    "use server";
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/clients`, {
+      cache: "force-cache",
+      next: {
+        tags: ["create-client"],
+      }
+    });
+    
+    return response.json();
+  }
+
+  async function createClient(formData: FormData) {
+    "use server";
+
+    const data = Object.fromEntries(formData.entries());
+    const clientData = {
+      cpf: String(data.cpf),
+      name: String(data.name),
+      email: String(data.email),
+      phone: String(data.phone),
+      address: String(data.address),
+      birthDate: new Date(String(data.birthDate)).toISOString(),
+    };
+
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/clients`, {
+      method: "POST",
+      body: JSON.stringify(clientData),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    revalidateTag("create-client");
+  }
+
+  const clients = await getClient();
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Clientes</h1>
+    <main className="sm:ml-14 p-4 space-y-6">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-2xl font-bold">
+              Novo Cliente
+            </CardTitle>
+            <UserPlus className="w-6 h-6" />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <form action={createClient} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Input 
+                name="cpf"
+                type="text"
+                placeholder="Digite o CPF"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Input 
+                name="name"
+                type="text"
+                placeholder="Digite o nome"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Input
+                name="email"
+                type="email"
+                placeholder="Digite o email"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Input
+                name="phone"
+                type="text"
+                placeholder="Digite o telefone"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Input
+                name="address"
+                type="text"
+                placeholder="Digite o endereço"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Input
+                name="birthDate"
+                type="date"
+                placeholder="Digite a data de nascimento"
+                required
+              />
+            </div>
+            <div className="md:col-span-2 lg:col-span-3 flex justify-end">
+              <Button type="submit" className="w-full md:w-auto">
+                Cadastrar Cliente
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
 
-      <form action={addClient} className="mb-6">
-        <h2 className="text-lg font-semibold mb-2">Adicionar Cliente</h2>
-        <div className="flex gap-4">
-          <input
-            type="text"
-            name="name"
-            placeholder="Nome"
-            className="border rounded-md p-2 w-full"
-            required
-          />
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            className="border rounded-md p-2 w-full"
-            required
-          />
-          <input
-            type="text"
-            name="cpf"
-            placeholder="CPF"
-            className="border rounded-md p-2 w-full"
-            required
-          />
-          <input
-            type="text"
-            name="phone"
-            placeholder="Telefone"
-            className="border rounded-md p-2 w-full"
-            required
-          />
-          <input
-            type="text"
-            name="address"
-            placeholder="Endereço"
-            className="border rounded-md p-2 w-full"
-          />
-          <Button type="submit">
-            Adicionar
-          </Button>
-        </div>
-      </form>
-
-      <table className="w-full border-collapse border border-gray-200">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border border-gray-200 p-2 text-left">CPF</th>
-            <th className="border border-gray-200 p-2 text-left">Nome</th>
-            <th className="border border-gray-200 p-2 text-left">Email</th>
-            <th className="border border-gray-200 p-2 text-left">Telefone</th>
-            <th className="border border-gray-200 p-2 text-left">Endereço</th>
-            <th className="border border-gray-200 p-2 text-left">Data de Nascimento</th>
-          </tr>
-        </thead>
-        <tbody>
-          {clients.map((client) => (
-            <tr key={client.cpf} className="hover:bg-gray-50">
-              <td className="border border-gray-200 p-2">{client.cpf}</td>
-              <td className="border border-gray-200 p-2">{client.name}</td>
-              <td className="border border-gray-200 p-2">{client.email}</td>
-              <td className="border border-gray-200 p-2">{client.phone}</td>
-              <td className="border border-gray-200 p-2">{client.address}</td>
-              <td className="border border-gray-200 p-2">{client.birthDate}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+      <Card className="overflow-hidden">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-2xl font-bold">
+              Lista de Clientes
+            </CardTitle>
+            <Users className="w-6 h-6" />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="container mx-auto">
+            <DataTable columns={columns} data={clients} />
+          </div>
+        </CardContent>
+      </Card>
+    </main>
   );
 }
