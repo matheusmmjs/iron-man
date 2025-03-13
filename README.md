@@ -1,4 +1,155 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🧘‍♀️ PilatesFlow
+
+Sistema de gerenciamento para estúdios de Pilates, desenvolvido para otimizar o controle de alunos, agendamentos e pagamentos.
+
+## 📱 Módulos
+
+### Clientes
+- Cadastro completo de alunos
+- Histórico de aulas
+- Avaliações físicas
+- Fichas de evolução
+
+### Agenda
+- Agendamento de aulas
+- Controle de turmas
+- Notificações automáticas
+- Histórico de presença
+
+### Financeiro
+- Controle de mensalidades
+- Histórico de pagamentos
+- Relatórios financeiros
+- Gestão de pacotes
+
+### Avaliações
+- Avaliação postural
+- Histórico de medidas
+- Evolução do aluno
+- Relatórios de progresso
+
+## 🚀 Tecnologias
+
+- Next.js 14 (App Router)
+- TypeScript
+- Tailwind CSS
+- Shadcn/ui
+- Prisma
+- PostgreSQL
+- Docker
+
+## ⚙️ Configuração
+
+### Pré-requisitos
+- Node.js 18+
+- Docker e Docker Compose
+- pnpm
+
+### Variáveis de Ambiente
+Crie um arquivo `.env`:
+
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/pilatesflow?schema=public"
+NEXT_PUBLIC_API_URL="http://localhost:3000"
+```
+
+### Instalação
+
+1. Clone o repositório
+```bash
+git clone https://github.com/seu-usuario/pilatesflow.git
+cd pilatesflow
+```
+
+2. Instale as dependências
+```bash
+pnpm install
+```
+
+3. Inicie o banco de dados
+```bash
+docker-compose up -d
+```
+
+4. Execute as migrações
+```bash
+pnpm prisma migrate dev
+```
+
+5. Inicie o servidor
+```bash
+pnpm dev
+```
+
+## 🐳 Docker
+
+```yaml
+version: '3'
+services:
+  postgres:
+    image: postgres:latest
+    container_name: pilatesflow-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: pilatesflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+```
+
+## 📁 Estrutura do Projeto
+
+```
+pilatesflow/
+├── src/
+│   ├── app/          # Rotas e páginas
+│   │   ├── clients/  # Gestão de alunos
+│   │   ├── schedule/ # Agendamentos
+│   │   ├── payments/ # Financeiro
+│   │   └── reviews/  # Avaliações
+│   ├── components/   # Componentes reutilizáveis
+│   ├── lib/         # Configurações
+│   └── styles/      # Estilos globais
+├── prisma/          # Banco de dados
+└── public/          # Arquivos estáticos
+```
+
+## 📝 Scripts
+
+```bash
+pnpm dev           # Ambiente de desenvolvimento
+pnpm build         # Build de produção 
+pnpm start         # Servidor de produção
+pnpm lint         # Verificação de código
+pnpm test         # Executa testes
+```
+
+## 🤝 Contribuição
+
+1. Faça o fork
+2. Crie sua branch (`git checkout -b feature/NovaMelhoria`)
+3. Commit (`git commit -m 'Adiciona nova melhoria'`)
+4. Push (`git push origin feature/NovaMelhoria`)
+5. Abra um Pull Request
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para detalhes.
+
+## 👥 Autores
+
+- Seu Nome - [GitHub](https://github.com/seu-usuario)
+
+## 🙏 Agradecimentos
+
+- Equipe do Next.js
+- Comunidade Shadcn/ui
+- Contribuidores do PrismaThis is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
 

@@ -7,7 +7,7 @@ export default function NotFound() {
         <h1 className="text-6xl font-bold text-slate-900">404</h1>
         <p className="mt-2 text-lg text-slate-600">Página não encontrada</p>
         <Link
-          href="/dashboard"
+          href="/"
           className="mt-6 inline-block px-4 py-2 rounded-md bg-slate-900 text-white text-sm hover:bg-slate-800 transition-colors duration-200"
         >
           Voltar para o início

@@ -9,10 +9,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Sistema de gestão para o seu estúdio",
+  title: "PilatesFlow - Sistema de gestão para o seu estúdio",
   description: "O melhor sistema de gestão para o seu estúdio com agentes de inteligência artificial",
   openGraph: {
-    title: "Sistema de gestão para o seu estúdio",
+    title: "PilatesFlow - Sistema de gestão para o seu estúdio",
     description: "O melhor sistema de gestão para o seu estúdio com agentes de inteligência artificial",
   },
   robots: {
