@@ -30,7 +30,7 @@ Sistema de gerenciamento para estúdios de Pilates, desenvolvido para otimizar o
 
 ## 🚀 Tecnologias
 
-- Next.js 14 (App Router)
+- Next.js 15
 - TypeScript
 - Tailwind CSS
 - Shadcn/ui

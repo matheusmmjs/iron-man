@@ -1,15 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export default async function Login() {
+export default async function SignIn() {
 
 async function handleFetchLogin(formData: FormData) {
     "use server";
 
     console.log("formData:", formData);
 
-    const cpf = formData.get("cpf")?.toString();
-    const password = formData.get("password")?.toString();
+    // const cpf = formData.get("cpf")?.toString();
+    // const password = formData.get("password")?.toString();
 
     // const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/login`, {
     //     method: 'POST',

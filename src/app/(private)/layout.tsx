@@ -1,7 +1,8 @@
-import "./globals.css";
+import "./../globals.css";
 import { Metadata } from "next";
 import { cn } from "@/lib/utils";
 import { Inter } from "next/font/google";
+import { Sidebar } from "@/components/sidebar";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
   }
 };
 
-export default function RootLayout({
+export default function PrivateLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -36,7 +37,8 @@ export default function RootLayout({
           "min-h-screen bg-background font-sans antialiased",
           inter.className
       )}>
-        
+        <Sidebar />
+
         {children}
       </body>
     </html>
