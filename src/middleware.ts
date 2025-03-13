@@ -21,6 +21,10 @@ const publicRoutes = [
         path: "/settings",
         whenAuthenticated: "redirect"
     },
+    {
+        path: "/pricing",
+        whenAuthenticated: "next"
+    },
 ] as const
 const REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE = "/sign-in"
 
@@ -50,7 +54,7 @@ export async function middleware(request: NextRequest) {
     if(authToken && !publicRoute) {
         //checar se o JWT esta expirado
         //se sim, pode remover o cookie e redirecionar o usuario para o login
-
+        //aplicar uma estrategia de refresh
 
         return NextResponse.next();
     }
