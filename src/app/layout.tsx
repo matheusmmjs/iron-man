@@ -1,7 +1,9 @@
 import "./globals.css";
 import { Metadata } from "next";
-import { cn } from "@/lib/utils";
 import { Inter } from "next/font/google";
+import type React from "react";
+// import { ThemeProvider } from "@/components/theme-provider";
+// import { ModeToggle } from "@/components/ui/mode-toggle";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -21,24 +23,23 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-    }
-  }
+    },
+  },
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className= {cn(
-          "min-h-screen bg-background font-sans antialiased",
-          inter.className
-      )}>
-        
-        {children}
+    <html lang="pt-BR" suppressHydrationWarning>
+      <body className={inter.className}>
+        {/* <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange> */}
+          {children}
+        {/* </ThemeProvider> */}
       </body>
     </html>
-  );
+  )
 }
+
