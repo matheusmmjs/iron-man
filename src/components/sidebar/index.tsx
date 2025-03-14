@@ -124,14 +124,14 @@ export function Sidebar() {
 
             <SheetContent side="left" className="sm:max-w-x">           
               <nav className="grid gap-6 text-lg font-medium">
-                <Link 
+                {/* <Link 
                   href= "/"
                   className="flex h-10 w-10 bg-primary rounded-full text-lg items-center justify-center text-primary-foreground md:text-base gap-2"
                   prefetch= {false}
                 >
                   <Package className="h-5 w-5 transition-all" />
                   <span className="sr-only">Logo do projeto</span>
-                </Link>
+                </Link> */}
 
                 <Link 
                   href= "/"

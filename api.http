@@ -36,3 +36,12 @@ Content-Type: application/json
 
 ###
 DELETE http://localhost:3000/api/clients/11111 HTTP/1.1
+
+###
+POST http://localhost:3000/api/sign-in HTTP/1.1
+Content-Type: application/json
+
+{
+  "cpf": "46368707860",
+  "password": "123456"
+}

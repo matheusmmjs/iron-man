@@ -15,6 +15,7 @@ CREATE TABLE "User" (
     "cpf" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
     "address" TEXT NOT NULL,
     "birthDate" TIMESTAMP(3) NOT NULL,

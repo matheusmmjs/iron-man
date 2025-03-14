@@ -6,24 +6,20 @@ export default async function SignIn() {
 async function handleFetchLogin(formData: FormData) {
     "use server";
 
-    console.log("formData:", formData);
+    const cpf = formData.get("cpf")?.toString();
+    const password = formData.get("password")?.toString();
 
-    // const cpf = formData.get("cpf")?.toString();
-    // const password = formData.get("password")?.toString();
-
-    // const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/login`, {
-    //     method: 'POST',
-    //     headers: {
-    //         'Content-Type': 'application/json'
-    //     },
-    //     body: JSON.stringify({
-    //         cpf,
-    //         password
-    //     })
-    // });
-
-    // const data = await response.json();
-    // console.log(data);    
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sign-in`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+            cpf,
+            password
+        })
+    });
 }
 
 return (
