@@ -6,7 +6,7 @@ import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 // import { ModeToggle } from "@/components/ui/mode-toggle"
-import { BarChart3, Users, Settings, LogOut, MenuIcon, X, ChevronDown, MessageSquareText } from "lucide-react"
+import { BarChart3, Users, Settings, LogOut, MenuIcon, X, ChevronDown, Sparkles } from "lucide-react"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 import {
   DropdownMenu,
@@ -40,6 +40,11 @@ export function Sidebar({ user }: SidebarProps) {
       title: "Dashboard",
     },
     {
+      href: "/ai-assistant",
+      icon: Sparkles,
+      title: "Assistente IA",
+    },
+    {
       href: "/studio",
       icon: Users,
       title: "Estúdio",
@@ -49,16 +54,11 @@ export function Sidebar({ user }: SidebarProps) {
         { href: "/studio/payments", title: "Pagamentos" },
       ],
     },
-    {
-      href: "/ai-assistant",
-      icon: MessageSquareText,
-      title: "Assistente IA",
-    },
-    {
-      href: "/settings",
-      icon: Settings,
-      title: "Configurações",
-    },
+    // {
+    //   href: "/settings",
+    //   icon: Settings,
+    //   title: "Configurações",
+    // },
   ]
 
   async function handleSignOut() {

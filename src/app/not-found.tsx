@@ -1,18 +1,52 @@
-import Link from "next/link";
+"use client"
+
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { ArrowLeft } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react"
 
 export default function NotFound() {
+  const router = useRouter()
+  const [previousPath, setPreviousPath] = useState<string>("/")
+
+  useEffect(() => {
+    // Pega o caminho anterior do histórico de navegação
+    const prevPath = document.referrer
+    if (prevPath && prevPath.includes(window.location.origin)) {
+      setPreviousPath(new URL(prevPath).pathname)
+    }
+  }, [])
+
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-6xl font-bold text-slate-900">404</h1>
-        <p className="mt-2 text-lg text-slate-600">Página não encontrada</p>
-        <Link
-          href="/"
-          className="mt-6 inline-block px-4 py-2 rounded-md bg-slate-900 text-white text-sm hover:bg-slate-800 transition-colors duration-200"
-        >
-          Voltar para o início
-        </Link>
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="text-center space-y-4">
+        <h1 className="text-6xl font-bold">404</h1>
+        <p className="text-lg text-muted-foreground">
+          Ops! Página não encontrada
+        </p>
+        
+        <div className="flex items-center justify-center gap-4 mt-6">
+          <Button 
+            variant="outline" 
+            onClick={() => router.back()}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Voltar
+          </Button>
+
+          {previousPath !== "/" && (
+            <Button 
+              variant="default"
+              asChild
+            >
+              <Link href="/">
+                Ir para o início
+              </Link>
+            </Button>
+          )}
+        </div>
       </div>
     </div>
-  );
+  )
 }
