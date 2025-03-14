@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { ModeToggle } from "@/components/ui/mode-toggle"
+// import { ModeToggle } from "@/components/ui/mode-toggle"
 import { BarChart3, Users, Settings, LogOut, MenuIcon, X, ChevronDown, MessageSquareText } from "lucide-react"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 import {
@@ -29,6 +29,7 @@ interface SidebarProps {
 
 export function Sidebar({ user }: SidebarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [openMenus, setOpenMenus] = useState<string[]>([])
   const pathname = usePathname()
   const router = useRouter()
 
@@ -39,7 +40,7 @@ export function Sidebar({ user }: SidebarProps) {
       title: "Dashboard",
     },
     {
-      href: "#",
+      href: "/studio",
       icon: Users,
       title: "Estúdio",
       subItems: [
@@ -75,10 +76,15 @@ export function Sidebar({ user }: SidebarProps) {
     }
   }
 
-  // Verificar se a rota atual é uma subrota
-  const isSubRoute = (mainRoute: string, currentPath: string) => {
-    return currentPath.startsWith(mainRoute) && mainRoute !== currentPath
+  const toggleSubmenu = (href: string) => {
+    setOpenMenus(prev => 
+      prev.includes(href) 
+        ? prev.filter(menu => menu !== href)
+        : [...prev, href]
+    )
   }
+
+  const isSubmenuOpen = (href: string) => openMenus.includes(href)
 
   return (
     <>
@@ -118,20 +124,27 @@ export function Sidebar({ user }: SidebarProps) {
                         <Button
                           variant={pathname.startsWith(route.href) ? "secondary" : "ghost"}
                           className="w-full justify-between"
+                          onClick={() => toggleSubmenu(route.href)}
                         >
                           <div className="flex items-center">
                             <route.icon className="mr-2 h-4 w-4" />
                             {route.title}
                           </div>
-                          <ChevronDown className="h-4 w-4" />
+                          <ChevronDown 
+                            className={cn(
+                              "h-4 w-4 transition-transform",
+                              isSubmenuOpen(route.href) && "transform rotate-180"
+                            )}
+                          />
                         </Button>
-                        {pathname.startsWith(route.href) && (
-                          <div className="ml-6 space-y-1">
+                        {isSubmenuOpen(route.href) && (
+                          <div className="ml-6 space-y-0.5">
                             {route.subItems.map((subItem) => (
                               <Button
                                 key={subItem.href}
                                 variant={pathname === subItem.href ? "secondary" : "ghost"}
-                                className="w-full justify-start"
+                                className="w-full justify-start h-9 px-2 text-sm font-normal text-muted-foreground hover:text-foreground"
+                                size="sm"
                                 onClick={() => {
                                   router.push(subItem.href)
                                   setIsMobileMenuOpen(false)
@@ -173,7 +186,7 @@ export function Sidebar({ user }: SidebarProps) {
                     <div className="text-xs text-muted-foreground">{user.role}</div>
                   </div>
                 </div>
-                <ModeToggle />
+                {/* <ModeToggle /> */}
               </div>
               <Button variant="destructive" className="w-full" onClick={handleSignOut}>
                 <LogOut className="mr-2 h-4 w-4" />
@@ -194,7 +207,7 @@ export function Sidebar({ user }: SidebarProps) {
               </div>
               <span className="font-semibold">PilatesFlow</span>
             </div>
-            <ModeToggle />
+            {/* <ModeToggle /> */}
           </div>
 
           <div className="flex-1 flex flex-col overflow-y-auto">
@@ -206,6 +219,7 @@ export function Sidebar({ user }: SidebarProps) {
                       <Button
                         variant={pathname.startsWith(route.href) ? "secondary" : "ghost"}
                         className="w-full justify-between"
+                        onClick={() => toggleSubmenu(route.href)}
                       >
                         <div className="flex items-center">
                           <route.icon className="mr-2 h-4 w-4" />
@@ -214,17 +228,18 @@ export function Sidebar({ user }: SidebarProps) {
                         <ChevronDown
                           className={cn(
                             "h-4 w-4 transition-transform",
-                            pathname.startsWith(route.href) && "transform rotate-180",
+                            isSubmenuOpen(route.href) && "transform rotate-180",
                           )}
                         />
                       </Button>
-                      {pathname.startsWith(route.href) && (
-                        <div className="ml-6 space-y-1">
+                      {isSubmenuOpen(route.href) && (
+                        <div className="ml-6 space-y-0.5">
                           {route.subItems.map((subItem) => (
                             <Link key={subItem.href} href={subItem.href}>
                               <Button
                                 variant={pathname === subItem.href ? "secondary" : "ghost"}
-                                className="w-full justify-start"
+                                className="w-full justify-start h-9 px-2 text-sm font-normal text-muted-foreground hover:text-foreground"
+                                size="sm"
                               >
                                 {subItem.title}
                               </Button>
