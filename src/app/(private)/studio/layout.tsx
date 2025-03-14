@@ -35,7 +35,7 @@ export default function StudioLayout({
   ];
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6 md:pt-12">
+    <div className="flex-1 space-y-6 p-4">
       <Tabs value={pathname.split("/")[2]} className="w-full">
         <TabsList className="grid w-full grid-cols-3 h-9">
           {tabs.map((tab) => (
@@ -52,7 +52,7 @@ export default function StudioLayout({
         </TabsList>
       </Tabs>
 
-      <div className="mt-6">
+      <div className="mt-4">
         {children}
       </div>
     </div>
