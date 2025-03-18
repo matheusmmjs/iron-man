@@ -5,8 +5,21 @@ import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-// import { ModeToggle } from "@/components/ui/mode-toggle"
-import { BarChart3, Users, Settings, LogOut, MenuIcon, X, ChevronDown, Sparkles } from "lucide-react"
+import { ModeToggle } from "@/components/ui/mode-toggle"
+import {
+  BarChart3,
+  Users,
+  CalendarDays,
+  CreditCard,
+  ClipboardList,
+  Settings,
+  LogOut,
+  MenuIcon,
+  X,
+  MessageSquareText,
+  Package,
+  Bot,
+} from "lucide-react"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 import {
   DropdownMenu,
@@ -29,7 +42,6 @@ interface SidebarProps {
 
 export function Sidebar({ user }: SidebarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [openMenus, setOpenMenus] = useState<string[]>([])
   const pathname = usePathname()
   const router = useRouter()
 
@@ -41,24 +53,32 @@ export function Sidebar({ user }: SidebarProps) {
     },
     {
       href: "/ai-assistant",
-      icon: Sparkles,
+      icon: MessageSquareText,
       title: "Assistente IA",
+      highlight: true,
+    },
+    {
+      href: "/ai-agents",
+      icon: Bot,
+      title: "Agentes de IA",
     },
     {
       href: "/studio",
       icon: Users,
       title: "Estúdio",
       subItems: [
-        { href: "/studio/clients", title: "Clientes" },
-        { href: "/studio/schedule", title: "Agenda" },
-        { href: "/studio/payments", title: "Pagamentos" },
+        { href: "/studio/clients", title: "Clientes", icon: Users },
+        { href: "/studio/schedule", title: "Agenda", icon: CalendarDays },
+        { href: "/studio/assessments", title: "Avaliações", icon: ClipboardList },
+        { href: "/studio/payments", title: "Pagamentos", icon: CreditCard },
+        { href: "/studio/packages", title: "Pacotes", icon: Package },
       ],
     },
-    // {
-    //   href: "/settings",
-    //   icon: Settings,
-    //   title: "Configurações",
-    // },
+    {
+      href: "/settings",
+      icon: Settings,
+      title: "Configurações",
+    },
   ]
 
   async function handleSignOut() {
@@ -76,15 +96,15 @@ export function Sidebar({ user }: SidebarProps) {
     }
   }
 
-  const toggleSubmenu = (href: string) => {
-    setOpenMenus(prev => 
-      prev.includes(href) 
-        ? prev.filter(menu => menu !== href)
-        : [...prev, href]
-    )
+  // Verificar se a rota atual é uma subrota
+  const isSubRoute = (mainRoute: string, currentPath: string) => {
+    return currentPath.startsWith(mainRoute) && mainRoute !== currentPath
   }
 
-  const isSubmenuOpen = (href: string) => openMenus.includes(href)
+  // Verificar se a rota atual é uma subrota específica
+  const isActiveSubRoute = (subRoute: string) => {
+    return pathname === subRoute || pathname.startsWith(`${subRoute}/`)
+  }
 
   return (
     <>
@@ -121,45 +141,35 @@ export function Sidebar({ user }: SidebarProps) {
                   <div key={route.href} className="space-y-1">
                     {route.subItems ? (
                       <>
-                        <Button
-                          variant={pathname.startsWith(route.href) ? "secondary" : "ghost"}
-                          className="w-full justify-between"
-                          onClick={() => toggleSubmenu(route.href)}
-                        >
-                          <div className="flex items-center">
-                            <route.icon className="mr-2 h-4 w-4" />
-                            {route.title}
-                          </div>
-                          <ChevronDown 
-                            className={cn(
-                              "h-4 w-4 transition-transform",
-                              isSubmenuOpen(route.href) && "transform rotate-180"
-                            )}
-                          />
-                        </Button>
-                        {isSubmenuOpen(route.href) && (
-                          <div className="ml-6 space-y-0.5">
+                        <div className="px-3 py-2">
+                          <h2 className="mb-2 text-xs font-semibold tracking-tight">{route.title}</h2>
+                          <div className="space-y-1">
                             {route.subItems.map((subItem) => (
                               <Button
                                 key={subItem.href}
-                                variant={pathname === subItem.href ? "secondary" : "ghost"}
-                                className="w-full justify-start h-9 px-2 text-sm font-normal text-muted-foreground hover:text-foreground"
-                                size="sm"
+                                variant={isActiveSubRoute(subItem.href) ? "secondary" : "ghost"}
+                                className="w-full justify-start"
                                 onClick={() => {
                                   router.push(subItem.href)
                                   setIsMobileMenuOpen(false)
                                 }}
                               >
+                                {subItem.icon && <subItem.icon className="mr-2 h-4 w-4" />}
                                 {subItem.title}
                               </Button>
                             ))}
                           </div>
-                        )}
+                        </div>
                       </>
                     ) : (
                       <Button
-                        variant={pathname === route.href ? "secondary" : "ghost"}
-                        className="w-full justify-start"
+                        variant={pathname === route.href ? "secondary" : route.highlight ? "default" : "ghost"}
+                        className={cn(
+                          "w-full justify-start",
+                          route.highlight &&
+                            pathname !== route.href &&
+                            "bg-primary/90 text-primary-foreground hover:bg-primary",
+                        )}
                         onClick={() => {
                           router.push(route.href)
                           setIsMobileMenuOpen(false)
@@ -186,7 +196,7 @@ export function Sidebar({ user }: SidebarProps) {
                     <div className="text-xs text-muted-foreground">{user.role}</div>
                   </div>
                 </div>
-                {/* <ModeToggle /> */}
+                <ModeToggle />
               </div>
               <Button variant="destructive" className="w-full" onClick={handleSignOut}>
                 <LogOut className="mr-2 h-4 w-4" />
@@ -207,52 +217,45 @@ export function Sidebar({ user }: SidebarProps) {
               </div>
               <span className="font-semibold">PilatesFlow</span>
             </div>
-            {/* <ModeToggle /> */}
+            <ModeToggle />
           </div>
 
           <div className="flex-1 flex flex-col overflow-y-auto">
-            <nav className="flex-1 px-4 py-4 space-y-1">
+            <nav className="flex-1 px-4 py-4 space-y-4">
               {routes.map((route) => (
                 <div key={route.href} className="space-y-1">
                   {route.subItems ? (
                     <>
-                      <Button
-                        variant={pathname.startsWith(route.href) ? "secondary" : "ghost"}
-                        className="w-full justify-between"
-                        onClick={() => toggleSubmenu(route.href)}
-                      >
-                        <div className="flex items-center">
+                      <div className="px-3 py-2">
+                        <h2 className="mb-2 text-xs font-semibold tracking-tight flex items-center">
                           <route.icon className="mr-2 h-4 w-4" />
                           {route.title}
-                        </div>
-                        <ChevronDown
-                          className={cn(
-                            "h-4 w-4 transition-transform",
-                            isSubmenuOpen(route.href) && "transform rotate-180",
-                          )}
-                        />
-                      </Button>
-                      {isSubmenuOpen(route.href) && (
-                        <div className="ml-6 space-y-0.5">
+                        </h2>
+                        <div className="space-y-1 ml-6">
                           {route.subItems.map((subItem) => (
                             <Link key={subItem.href} href={subItem.href}>
                               <Button
-                                variant={pathname === subItem.href ? "secondary" : "ghost"}
-                                className="w-full justify-start h-9 px-2 text-sm font-normal text-muted-foreground hover:text-foreground"
-                                size="sm"
+                                variant={isActiveSubRoute(subItem.href) ? "secondary" : "ghost"}
+                                className="w-full justify-start"
                               >
+                                {subItem.icon && <subItem.icon className="mr-2 h-4 w-4" />}
                                 {subItem.title}
                               </Button>
                             </Link>
                           ))}
                         </div>
-                      )}
+                      </div>
                     </>
                   ) : (
                     <Link href={route.href}>
                       <Button
-                        variant={pathname === route.href ? "secondary" : "ghost"}
-                        className="w-full justify-start"
+                        variant={pathname === route.href ? "secondary" : route.highlight ? "default" : "ghost"}
+                        className={cn(
+                          "w-full justify-start",
+                          route.highlight &&
+                            pathname !== route.href &&
+                            "bg-primary/90 text-primary-foreground hover:bg-primary",
+                        )}
                       >
                         <route.icon className="mr-2 h-4 w-4" />
                         {route.title}

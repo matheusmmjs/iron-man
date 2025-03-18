@@ -1,6 +1,6 @@
 "use client"
 
-import { PaymentsTable } from "@/components/studio/payments/payments-table"
+import { AssessmentsTable } from "@/components/studio/assessments/assessments-table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
@@ -9,51 +9,39 @@ import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 
 // Dados de exemplo
-const payments = [
+const assessments = [
   {
     id: "1",
     client: "Ana Silva",
     clientId: "1",
-    amount: "R$ 450,00",
-    date: "05/03/2025",
-    dueDate: "05/03/2025",
-    method: "Cartão de Crédito",
-    status: "pago",
-    description: "Mensalidade Março/2025",
-    invoice: "INV-2025-0301",
+    date: "10/03/2025",
+    type: "INITIAL",
+    professional: "Dra. Juliana Mendes",
   },
   {
     id: "2",
     client: "Carlos Oliveira",
     clientId: "2",
-    amount: "R$ 600,00",
     date: "15/02/2025",
-    dueDate: "15/03/2025",
-    method: "Transferência Bancária",
-    status: "pendente",
-    description: "Trimestral (Mar/2025 - Mai/2025)",
-    invoice: "INV-2025-0302",
+    type: "FOLLOW_UP",
+    professional: "Dr. Ricardo Santos",
   },
   {
     id: "3",
     client: "Mariana Santos",
     clientId: "3",
-    amount: "R$ 250,00",
-    date: "01/01/2025",
-    dueDate: "01/03/2025",
-    method: "Pendente",
-    status: "atrasado",
-    description: "Mensalidade Março/2025",
-    invoice: "INV-2025-0303",
+    date: "05/01/2025",
+    type: "REASSESSMENT",
+    professional: "Dra. Juliana Mendes",
   },
 ]
 
-export default function PaymentsPage() {
+export default function AssessmentsPage() {
   const pathname = usePathname()
 
   // Atualiza o valor da tab com base no pathname
   useEffect(() => {
-    const tabsList = document.querySelector('button[value="payments"]')
+    const tabsList = document.querySelector('button[value="assessments"]')
     if (tabsList) {
       tabsList.click()
     }
@@ -62,16 +50,16 @@ export default function PaymentsPage() {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Pagamentos</CardTitle>
-        <Link href="/studio/payments/new">
+        <CardTitle>Avaliações</CardTitle>
+        <Link href="/studio/assessments/new">
           <Button size="sm">
             <Plus className="mr-2 h-4 w-4" />
-            Novo Pagamento
+            Nova Avaliação
           </Button>
         </Link>
       </CardHeader>
       <CardContent>
-        <PaymentsTable payments={payments} />
+        <AssessmentsTable assessments={assessments} />
       </CardContent>
     </Card>
   )

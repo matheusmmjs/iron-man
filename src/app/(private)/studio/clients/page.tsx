@@ -1,8 +1,12 @@
+"use client"
+
 import { ClientsTable } from "@/components/studio/clients/clients-table"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus } from "lucide-react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { useEffect } from "react"
 
 // Dados de exemplo - em produção, isso viria do banco de dados
 const clients = [
@@ -36,6 +40,16 @@ const clients = [
 ]
 
 export default function ClientsPage() {
+  const pathname = usePathname()
+
+  // Atualiza o valor da tab com base no pathname
+  useEffect(() => {
+    const tabsList = document.querySelector('button[value="clients"]')
+    if (tabsList) {
+      tabsList.click()
+    }
+  }, [pathname])
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">

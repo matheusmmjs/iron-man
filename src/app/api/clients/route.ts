@@ -13,9 +13,12 @@ const clients = [
     objective: "Fortalecimento e correção postural",
     medicalConditions: "Escoliose leve",
     status: "ACTIVE",
+    isActive: true,
     tenantId: "1",
     createdAt: "2023-01-10T00:00:00.000Z",
     updatedAt: "2023-01-10T00:00:00.000Z",
+    createdBy: "1",
+    updatedBy: "1",
   },
   {
     id: "2",
@@ -28,9 +31,12 @@ const clients = [
     objective: "Recuperação de lesão no joelho",
     medicalConditions: "Pós-cirúrgico de menisco",
     status: "ACTIVE",
+    isActive: true,
     tenantId: "1",
     createdAt: "2023-02-15T00:00:00.000Z",
     updatedAt: "2023-02-15T00:00:00.000Z",
+    createdBy: "1",
+    updatedBy: "1",
   },
   {
     id: "3",
@@ -43,9 +49,12 @@ const clients = [
     objective: "Condicionamento físico geral",
     medicalConditions: "Hipertensão controlada",
     status: "INACTIVE",
+    isActive: true,
     tenantId: "1",
     createdAt: "2022-06-20T00:00:00.000Z",
     updatedAt: "2022-06-20T00:00:00.000Z",
+    createdBy: "1",
+    updatedBy: "1",
   },
 ]
 
@@ -55,7 +64,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const tenantId = searchParams.get("tenantId") || "1"
 
-    const filteredClients = clients.filter((client) => client.tenantId === tenantId)
+    const filteredClients = clients.filter((client) => client.tenantId === tenantId && client.isActive)
 
     return NextResponse.json(filteredClients)
   } catch (error) {
@@ -85,9 +94,12 @@ export async function POST(request: Request) {
       objective: body.objective || "",
       medicalConditions: body.medicalConditions || "",
       status: body.status || "ACTIVE",
+      isActive: true,
       tenantId: body.tenantId || "1",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      createdBy: body.createdBy || "1",
+      updatedBy: body.updatedBy || "1",
     }
 
     clients.push(newClient)
@@ -98,39 +110,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
   }
 }
-
-// import { NextRequest, NextResponse } from "next/server";
-// import prisma from "@/lib/prisma";
-
-// export async function GET() {
-//   try {
-//     const clients = await prisma.client.findMany({
-//       where: { isActive: true },
-//     });
-    
-//     return NextResponse.json(clients);
-//   } catch (error) {
-//     console.error("Error retrieving clients:", error);
-//     return NextResponse.json(
-//       { error: "Error retrieving clients" },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-// export async function POST(request: NextRequest) {
-//   try {
-//     const { cpf, name, email, phone, address, birthDate } = await request.json();
-//     const client = await prisma.client.create({
-//       data: { cpf, name, email, phone, address, birthDate },
-//     });
-
-//     return NextResponse.json(client);
-//   } catch (error) {
-//     console.error("Error creating client:", error);
-//     return NextResponse.json(
-//       { error: "Error creating client" },
-//       { status: 500 }
-//     );
-//   }
-// }

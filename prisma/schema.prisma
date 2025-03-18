@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,29 +11,36 @@ datasource db {
 }
 
 model Tenant {
-  id         String      @id @default(cuid())
-  name       String
-  subdomain  String      @unique
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  users      User[]
-  clients    Client[]
-  schedules  Schedule[]
-  payments   Payment[]
-  evolutions Evolution[]
+  id          String       @id @default(cuid())
+  name        String
+  subdomain   String       @unique
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  users       User[]
+  clients     Client[]
+  schedules   Schedule[]
+  payments    Payment[]
+  evolutions  Evolution[]
+  assessments Assessment[]
 }
 
 model User {
-  id        String     @id @default(cuid())
-  name      String
-  email     String     @unique
-  password  String
-  role      Role       @default(INSTRUCTOR)
-  tenantId  String
-  tenant    Tenant     @relation(fields: [tenantId], references: [id])
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  schedules Schedule[]
+  id          String       @id @default(cuid())
+  name        String
+  email       String       @unique
+  password    String
+  role        Role         @default(INSTRUCTOR)
+  isActive    Boolean      @default(true)
+  tenantId    String
+  tenant      Tenant       @relation(fields: [tenantId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  createdBy   String? // ID do usuário que criou este registro
+  updatedBy   String? // ID do usuário que atualizou este registro
+  schedules   Schedule[]
+  evolutions  Evolution[] // Relação com as evoluções criadas pelo usuário
+  assessments Assessment[] // Relação com as avaliações criadas pelo usuário
 }
 
 enum Role {
@@ -50,13 +60,17 @@ model Client {
   objective         String?
   medicalConditions String?
   status            ClientStatus @default(ACTIVE)
+  isActive          Boolean      @default(true)
   tenantId          String
   tenant            Tenant       @relation(fields: [tenantId], references: [id])
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
+  createdBy         String? // ID do usuário que criou este registro
+  updatedBy         String? // ID do usuário que atualizou este registro
   schedules         Schedule[]
   payments          Payment[]
   evolutions        Evolution[]
+  assessments       Assessment[]
 
   @@unique([email, tenantId])
   @@unique([cpf, tenantId])
@@ -69,18 +83,23 @@ enum ClientStatus {
 }
 
 model Schedule {
-  id       String         @id @default(cuid())
-  title    String
-  start    DateTime
-  end      DateTime
-  status   ScheduleStatus @default(SCHEDULED)
-  notes    String?
-  clientId String
-  client   Client         @relation(fields: [clientId], references: [id])
-  userId   String
-  user     User           @relation(fields: [userId], references: [id])
-  tenantId String
-  tenant   Tenant         @relation(fields: [tenantId], references: [id])
+  id        String         @id @default(cuid())
+  title     String
+  start     DateTime
+  end       DateTime
+  status    ScheduleStatus @default(SCHEDULED)
+  notes     String?
+  isActive  Boolean        @default(true)
+  clientId  String
+  client    Client         @relation(fields: [clientId], references: [id])
+  userId    String
+  user      User           @relation(fields: [userId], references: [id])
+  tenantId  String
+  tenant    Tenant         @relation(fields: [tenantId], references: [id])
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  createdBy String? // ID do usuário que criou este registro
+  updatedBy String? // ID do usuário que atualizou este registro
 }
 
 enum ScheduleStatus {
@@ -90,22 +109,74 @@ enum ScheduleStatus {
 }
 
 model Payment {
-  id       String   @id @default(cuid())
-  amount   Float
-  date     DateTime @default(now())
-  clientId String
-  client   Client   @relation(fields: [clientId], references: [id])
-  tenantId String
-  tenant   Tenant   @relation(fields: [tenantId], references: [id])
+  id          String        @id @default(cuid())
+  amount      Float
+  date        DateTime      @default(now())
+  dueDate     DateTime
+  status      PaymentStatus @default(PENDING)
+  method      String?
+  description String?
+  isActive    Boolean       @default(true)
+  clientId    String
+  client      Client        @relation(fields: [clientId], references: [id])
+  tenantId    String
+  tenant      Tenant        @relation(fields: [tenantId], references: [id])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  createdBy   String? // ID do usuário que criou este registro
+  updatedBy   String? // ID do usuário que atualizou este registro
+}
+
+enum PaymentStatus {
+  PAID
+  PENDING
+  OVERDUE
+  CANCELED
 }
 
 model Evolution {
-  id           String   @id @default(cuid())
-  date         DateTime @default(now())
-  notes        String
-  professional String
-  clientId     String
-  client       Client   @relation(fields: [clientId], references: [id])
-  tenantId     String
-  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+  id        String   @id @default(cuid())
+  date      DateTime @default(now())
+  notes     String   @db.Text
+  isActive  Boolean  @default(true)
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id])
+  userId    String // Profissional que registrou a evolução
+  user      User     @relation(fields: [userId], references: [id])
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String? // ID do usuário que criou este registro
+  updatedBy String? // ID do usuário que atualizou este registro
+}
+
+model Assessment {
+  id                   String         @id @default(cuid())
+  date                 DateTime       @default(now())
+  type                 AssessmentType @default(INITIAL)
+  posturalAnalysis     String?        @db.Text
+  painAreas            String?        @db.Text
+  movementRestrictions String?        @db.Text
+  strengthTests        String?        @db.Text
+  flexibilityTests     String?        @db.Text
+  recommendations      String?        @db.Text
+  goals                String?        @db.Text
+  isActive             Boolean        @default(true)
+  clientId             String
+  client               Client         @relation(fields: [clientId], references: [id])
+  userId               String // Profissional que realizou a avaliação
+  user                 User           @relation(fields: [userId], references: [id])
+  tenantId             String
+  tenant               Tenant         @relation(fields: [tenantId], references: [id])
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  createdBy            String? // ID do usuário que criou este registro
+  updatedBy            String? // ID do usuário que atualizou este registro
+}
+
+enum AssessmentType {
+  INITIAL
+  FOLLOW_UP
+  REASSESSMENT
 }

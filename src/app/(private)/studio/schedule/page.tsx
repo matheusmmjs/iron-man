@@ -1,8 +1,12 @@
+"use client"
+
 import { ScheduleCalendar } from "@/components/studio/schedule/schedule-calendar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { useEffect } from "react"
 
 // Dados de exemplo
 const events = [
@@ -30,6 +34,16 @@ const events = [
 ]
 
 export default function SchedulePage() {
+  const pathname = usePathname()
+
+  // Atualiza o valor da tab com base no pathname
+  useEffect(() => {
+    const tabsList = document.querySelector('button[value="schedule"]')
+    if (tabsList) {
+      tabsList.click()
+    }
+  }, [pathname])
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">

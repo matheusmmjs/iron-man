@@ -13,9 +13,12 @@ const clients = [
     objective: "Fortalecimento e correção postural",
     medicalConditions: "Escoliose leve",
     status: "ACTIVE",
+    isActive: true,
     tenantId: "1",
     createdAt: "2023-01-10T00:00:00.000Z",
     updatedAt: "2023-01-10T00:00:00.000Z",
+    createdBy: "1",
+    updatedBy: "1",
   },
   {
     id: "2",
@@ -49,52 +52,80 @@ const clients = [
   },
 ]
 
-export async function GET(request: Request) {
+export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
-    // Em produção, filtrar por tenantId do usuário autenticado
-    const { searchParams } = new URL(request.url)
-    const tenantId = searchParams.get("tenantId") || "1"
+    const client = clients.find((c) => c.id === params.id && c.isActive)
 
-    const filteredClients = clients.filter((client) => client.tenantId === tenantId)
+    if (!client) {
+      return NextResponse.json({ error: "Cliente não encontrado" }, { status: 404 })
+    }
 
-    return NextResponse.json(filteredClients)
+    return NextResponse.json(client)
   } catch (error) {
-    console.error("Erro ao buscar clientes:", error)
+    console.error("Erro ao buscar cliente:", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
   }
 }
 
-export async function POST(request: Request) {
+export async function PUT(request: Request, { params }: { params: { id: string } }) {
   try {
     const body = await request.json()
+    const clientIndex = clients.findIndex((c) => c.id === params.id && c.isActive)
+
+    if (clientIndex === -1) {
+      return NextResponse.json({ error: "Cliente não encontrado" }, { status: 404 })
+    }
 
     // Validação básica
     if (!body.name || !body.email || !body.cpf) {
       return NextResponse.json({ error: "Nome, email e CPF são obrigatórios" }, { status: 400 })
     }
 
-    // Em produção, isso seria salvo no banco de dados
-    const newClient = {
-      id: Date.now().toString(),
+    // Atualizar cliente
+    const updatedClient = {
+      ...clients[clientIndex],
       name: body.name,
       email: body.email,
-      phone: body.phone || "",
+      phone: body.phone || clients[clientIndex].phone,
       cpf: body.cpf,
-      address: body.address || "",
-      birthDate: body.birthDate || new Date().toISOString(),
-      objective: body.objective || "",
-      medicalConditions: body.medicalConditions || "",
-      status: body.status || "ACTIVE",
-      tenantId: body.tenantId || "1",
-      createdAt: new Date().toISOString(),
+      address: body.address || clients[clientIndex].address,
+      birthDate: body.birthDate || clients[clientIndex].birthDate,
+      objective: body.objective || clients[clientIndex].objective,
+      medicalConditions: body.medicalConditions || clients[clientIndex].medicalConditions,
+      status: body.status || clients[clientIndex].status,
       updatedAt: new Date().toISOString(),
+      updatedBy: body.updatedBy || "1",
     }
 
-    clients.push(newClient)
+    clients[clientIndex] = updatedClient
 
-    return NextResponse.json(newClient, { status: 201 })
+    return NextResponse.json(updatedClient)
   } catch (error) {
-    console.error("Erro ao criar cliente:", error)
+    console.error("Erro ao atualizar cliente:", error)
+    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+  }
+}
+
+export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+  try {
+    const body = await request.json()
+    const clientIndex = clients.findIndex((c) => c.id === params.id && c.isActive)
+
+    if (clientIndex === -1) {
+      return NextResponse.json({ error: "Cliente não encontrado" }, { status: 404 })
+    }
+
+    // Soft delete - apenas marca como inativo
+    clients[clientIndex] = {
+      ...clients[clientIndex],
+      isActive: false,
+      updatedAt: new Date().toISOString(),
+      updatedBy: body.updatedBy || "1",
+    }
+
+    return NextResponse.json({ message: "Cliente removido com sucesso" }, { status: 200 })
+  } catch (error) {
+    console.error("Erro ao remover cliente:", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
   }
 }

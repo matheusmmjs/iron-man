@@ -1,11 +1,52 @@
+"use client"
+
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Overview } from "@/components/dashboard/overview"
 import { RecentClients } from "@/components/dashboard/recent-clients"
 import { UpcomingClasses } from "@/components/dashboard/upcoming-classes"
+import { Button } from "@/components/ui/button"
+import { MessageSquareText, X } from "lucide-react"
+import Link from "next/link"
 
 export default function DashboardPage() {
+  const [showAssistantCard, setShowAssistantCard] = useState(true)
+
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6 md:pt-12">
+      <div className="flex items-center justify-between space-y-2">
+        <h2 className="text-2xl font-bold tracking-tight">Dashboard</h2>
+      </div>
+
+      {/* Destaque do Assistente IA */}
+      {showAssistantCard && (
+        <Card className="bg-primary/5 border-primary/20">
+          <CardHeader className="flex flex-row items-start justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquareText className="h-6 w-6" />
+                Assistente IA de Pilates
+              </CardTitle>
+              <CardDescription>
+                Nosso assistente inteligente pode ajudar você a criar planos de aula personalizados, sugerir exercícios
+                específicos para cada cliente e muito mais.
+              </CardDescription>
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => setShowAssistantCard(false)} className="mt-1">
+              <X className="h-4 w-4" />
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <Link href="/ai-assistant">
+              <Button size="lg" className="w-full sm:w-auto">
+                <MessageSquareText className="mr-2 h-5 w-5" />
+                Conversar com o Assistente
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -80,99 +121,3 @@ export default function DashboardPage() {
     </div>
   )
 }
-
-// import { ChartOverview } from "@/components/chart";
-// import { Sales } from "@/components/sales";
-// import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-// import { CalendarCheck, DollarSign, UserPlus, Users } from "lucide-react";
-
-// export default function Dashboard() {
-//   return (
-//     <main className="sm:ml-14 p-4">
-//       <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-//         <Card>
-//           <CardHeader>
-//             <div className="flex items-center justify-center">
-//               <CardTitle className="text-lg sm:text-xl text-gray-800 select-none">
-//                 Total de clientes
-//               </CardTitle>
-//               <Users className="ml-auto w-4 h-4" />
-//             </div>
-
-//             <CardDescription>
-//               Total de clientes ativos cadastrados no sistema
-//             </CardDescription>
-//           </CardHeader>
-
-//           <CardContent>
-//             <p className="text-base sm:text-lg font-bold">52</p>
-//           </CardContent>
-//         </Card>
-
-//         <Card>
-//           <CardHeader>
-//             <div className="flex items-center justify-center">
-//               <CardTitle className="text-lg sm:text-xl text-gray-800 select-none">
-//                 Total de pagamentos recebidos
-//               </CardTitle>
-//               <DollarSign className="ml-auto w-4 h-4" />
-//             </div>
-
-//             <CardDescription>
-//               Total de pagamentos recebidos no ultimo mês
-//             </CardDescription>
-//           </CardHeader>
-
-//           <CardContent>
-//             <p className="text-base sm:text-lg font-bold">R$ 8.542,00</p>
-//           </CardContent>
-//         </Card>
-
-//         <Card>
-//           <CardHeader>
-//             <div className="flex items-center justify-center">
-//               <CardTitle className="text-lg sm:text-xl text-gray-800 select-none">
-//                 Total de novos clientes
-//               </CardTitle>
-//               <UserPlus className="ml-auto w-4 h-4" />
-//             </div>
-
-//             <CardDescription>
-//               Total de novos clientes ativos no ultimo mês
-//             </CardDescription>
-//           </CardHeader>
-
-//           <CardContent>
-//             <p className="text-base sm:text-lg font-bold">3</p>
-//           </CardContent>
-//         </Card>
-
-//         <Card>
-//           <CardHeader>
-//             <div className="flex items-center justify-center">
-//               <CardTitle className="text-lg sm:text-xl text-gray-800 select-none">
-//                 Total de atendimentos
-//               </CardTitle>
-//               <CalendarCheck className="ml-auto w-4 h-4" />
-//             </div>
-
-//             <CardDescription>
-//               Total de atendimentos realizados no ultimo mês
-//             </CardDescription>
-//           </CardHeader>
-
-//           <CardContent>
-//             <p className="text-base sm:text-lg font-bold">63</p>
-//           </CardContent>
-//         </Card>
-
-//       </section>
-
-//       <section className="mt-4 flex flex-col md:flex-row gap-4">
-        
-//         <ChartOverview />
-//         <Sales />
-//       </section>
-//     </main>
-//   );
-// }
