@@ -7,9 +7,16 @@ interface UserJwtPayload {
   email: string
   name: string
   role: string
+  tenantId: string
 }
 
-export async function signAuth(payload: { userId: string; email: string; name: string; role: string }) {
+export async function signAuth(payload: {
+  userId: string
+  email: string
+  name: string
+  role: string
+  tenantId: string
+}) {
   try {
     const secret = new TextEncoder().encode(process.env.JWT_SECRET || "default_secret_change_this")
     const alg = "HS256"
@@ -39,4 +46,3 @@ export async function verifyAuth(token: string) {
     return null
   }
 }
-

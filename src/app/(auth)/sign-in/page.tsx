@@ -12,6 +12,7 @@ const DEMO_USER = {
   name: "Admin",
   password: "$2a$12$oAk35hdsCY7uNS09SmAwae6mMQIcs/4HzyCIgrrrNDbghoCFZDSmm", // "123456"
   role: "ADMIN",
+  tenantId: "1"
 }
 
 async function signIn(formData: FormData) {
@@ -38,6 +39,7 @@ async function signIn(formData: FormData) {
     email: DEMO_USER.email,
     name: DEMO_USER.name,
     role: DEMO_USER.role,
+    tenantId: DEMO_USER.tenantId,
   })
 
   // Definir cookie

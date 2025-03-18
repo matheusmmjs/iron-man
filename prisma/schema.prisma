@@ -11,36 +11,43 @@ datasource db {
 }
 
 model Tenant {
-  id          String       @id @default(cuid())
-  name        String
-  subdomain   String       @unique
-  isActive    Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  users       User[]
-  clients     Client[]
-  schedules   Schedule[]
-  payments    Payment[]
-  evolutions  Evolution[]
-  assessments Assessment[]
+  id              String               @id @default(cuid())
+  name            String
+  subdomain       String               @unique
+  isActive        Boolean              @default(true)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  users           User[]
+  clients         Client[]
+  schedules       Schedule[]
+  payments        Payment[]
+  evolutions      Evolution[]
+  assessments     Assessment[]
+  plans           Plan[]
+  agents          Agent[]
+  homeExercises   HomeExercise[]
+  clientExercises ClientHomeExercise[]
 }
 
 model User {
-  id          String       @id @default(cuid())
-  name        String
-  email       String       @unique
-  password    String
-  role        Role         @default(INSTRUCTOR)
-  isActive    Boolean      @default(true)
-  tenantId    String
-  tenant      Tenant       @relation(fields: [tenantId], references: [id])
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  createdBy   String? // ID do usuário que criou este registro
-  updatedBy   String? // ID do usuário que atualizou este registro
-  schedules   Schedule[]
-  evolutions  Evolution[] // Relação com as evoluções criadas pelo usuário
-  assessments Assessment[] // Relação com as avaliações criadas pelo usuário
+  id                      String               @id @default(cuid())
+  name                    String
+  email                   String               @unique
+  password                String
+  role                    Role                 @default(INSTRUCTOR)
+  isActive                Boolean              @default(true)
+  tenantId                String
+  tenant                  Tenant               @relation(fields: [tenantId], references: [id])
+  createdAt               DateTime             @default(now())
+  updatedAt               DateTime             @updatedAt
+  createdBy               String? // ID do usuário que criou este registro
+  updatedBy               String? // ID do usuário que atualizou este registro
+  schedules               Schedule[]
+  evolutions              Evolution[] // Relação com as evoluções criadas pelo usuário
+  assessments             Assessment[] // Relação com as avaliações criadas pelo usuário
+  exercisesCreated        HomeExercise[]       @relation("ExerciseCreator")
+  exercisesUpdated        HomeExercise[]       @relation("ExerciseUpdater")
+  clientExercisesAssigned ClientHomeExercise[] @relation("ExerciseAssigner")
 }
 
 enum Role {
@@ -50,7 +57,7 @@ enum Role {
 }
 
 model Client {
-  id                String       @id @default(cuid())
+  id                String               @id @default(cuid())
   name              String
   email             String
   phone             String
@@ -59,18 +66,20 @@ model Client {
   birthDate         DateTime
   objective         String?
   medicalConditions String?
-  status            ClientStatus @default(ACTIVE)
-  isActive          Boolean      @default(true)
+  status            ClientStatus         @default(ACTIVE)
+  isActive          Boolean              @default(true)
   tenantId          String
-  tenant            Tenant       @relation(fields: [tenantId], references: [id])
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
+  tenant            Tenant               @relation(fields: [tenantId], references: [id])
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
   createdBy         String? // ID do usuário que criou este registro
   updatedBy         String? // ID do usuário que atualizou este registro
   schedules         Schedule[]
   payments          Payment[]
   evolutions        Evolution[]
   assessments       Assessment[]
+  clientPlans       ClientPlan[]
+  homeExercises     ClientHomeExercise[]
 
   @@unique([email, tenantId])
   @@unique([cpf, tenantId])
@@ -109,22 +118,24 @@ enum ScheduleStatus {
 }
 
 model Payment {
-  id          String        @id @default(cuid())
-  amount      Float
-  date        DateTime      @default(now())
-  dueDate     DateTime
-  status      PaymentStatus @default(PENDING)
-  method      String?
-  description String?
-  isActive    Boolean       @default(true)
-  clientId    String
-  client      Client        @relation(fields: [clientId], references: [id])
-  tenantId    String
-  tenant      Tenant        @relation(fields: [tenantId], references: [id])
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  createdBy   String? // ID do usuário que criou este registro
-  updatedBy   String? // ID do usuário que atualizou este registro
+  id           String        @id @default(cuid())
+  amount       Float
+  date         DateTime      @default(now())
+  dueDate      DateTime
+  status       PaymentStatus @default(PENDING)
+  method       String?
+  description  String?
+  isActive     Boolean       @default(true)
+  clientId     String
+  client       Client        @relation(fields: [clientId], references: [id])
+  tenantId     String
+  tenant       Tenant        @relation(fields: [tenantId], references: [id])
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  createdBy    String? // ID do usuário que criou este registro
+  updatedBy    String? // ID do usuário que atualizou este registro
+  clientPlanId String?
+  clientPlan   ClientPlan?   @relation(fields: [clientPlanId], references: [id])
 }
 
 enum PaymentStatus {
@@ -173,10 +184,158 @@ model Assessment {
   updatedAt            DateTime       @updatedAt
   createdBy            String? // ID do usuário que criou este registro
   updatedBy            String? // ID do usuário que atualizou este registro
+  attachments          Attachment[]
 }
 
 enum AssessmentType {
   INITIAL
   FOLLOW_UP
   REASSESSMENT
+}
+
+model Attachment {
+  id           String     @id @default(cuid())
+  name         String
+  type         String
+  size         String
+  url          String
+  isActive     Boolean    @default(true)
+  assessmentId String
+  assessment   Assessment @relation(fields: [assessmentId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  createdBy    String? // ID do usuário que criou este registro
+  updatedBy    String? // ID do usuário que atualizou este registro
+}
+
+model Plan {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  sessions    Int
+  price       Float
+  duration    Int // Duração em dias
+  isActive    Boolean      @default(true)
+  tenantId    String
+  tenant      Tenant       @relation(fields: [tenantId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  createdBy   String? // ID do usuário que criou este registro
+  updatedBy   String? // ID do usuário que atualizou este registro
+  clientPlans ClientPlan[]
+}
+
+model ClientPlan {
+  id           String     @id @default(cuid())
+  startDate    DateTime
+  endDate      DateTime
+  sessionsUsed Int        @default(0)
+  status       PlanStatus @default(ACTIVE)
+  isActive     Boolean    @default(true)
+  clientId     String
+  client       Client     @relation(fields: [clientId], references: [id])
+  planId       String
+  plan         Plan       @relation(fields: [planId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  createdBy    String? // ID do usuário que criou este registro
+  updatedBy    String? // ID do usuário que atualizou este registro
+  payments     Payment[]
+}
+
+enum PlanStatus {
+  ACTIVE
+  COMPLETED
+  CANCELED
+  EXPIRED
+}
+
+model Agent {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  model       String   @default("gpt-4o")
+  context     String   @db.Text
+  tone        String?
+  language    String   @default("Português")
+  apiKey      String?
+  isActive    Boolean  @default(true)
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String? // ID do usuário que criou este registro
+  updatedBy   String? // ID do usuário que atualizou este registro
+}
+
+model HomeExercise {
+  id              String               @id @default(cuid())
+  title           String
+  description     String?
+  type            ExerciseType         @default(VIDEO)
+  url             String
+  thumbnail       String?
+  difficulty      ExerciseDifficulty   @default(BEGINNER)
+  duration        Int? // Duração em minutos
+  bodyArea        String? // Área do corpo trabalhada
+  status          ExerciseStatus       @default(DRAFT)
+  isActive        Boolean              @default(true)
+  tenantId        String
+  tenant          Tenant               @relation(fields: [tenantId], references: [id])
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  createdBy       String // ID do usuário que criou este registro
+  creator         User                 @relation("ExerciseCreator", fields: [createdBy], references: [id])
+  updatedBy       String // ID do usuário que atualizou este registro
+  updater         User                 @relation("ExerciseUpdater", fields: [updatedBy], references: [id])
+  clientExercises ClientHomeExercise[]
+}
+
+enum ExerciseType {
+  VIDEO
+  PDF
+  LINK
+}
+
+enum ExerciseStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum ExerciseDifficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+model ClientHomeExercise {
+  id             String               @id @default(cuid())
+  assignedDate   DateTime             @default(now())
+  expirationDate DateTime?
+  completedDate  DateTime?
+  viewCount      Int                  @default(0)
+  lastViewed     DateTime?
+  status         ClientExerciseStatus @default(ASSIGNED)
+  feedback       String?              @db.Text
+  points         Int                  @default(0)
+  isActive       Boolean              @default(true)
+  clientId       String
+  client         Client               @relation(fields: [clientId], references: [id])
+  exerciseId     String
+  exercise       HomeExercise         @relation(fields: [exerciseId], references: [id])
+  tenantId       String
+  tenant         Tenant               @relation(fields: [tenantId], references: [id])
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  assignedBy     String // ID do usuário que atribuiu o exercício
+  assigner       User                 @relation("ExerciseAssigner", fields: [assignedBy], references: [id])
+
+  @@unique([clientId, exerciseId])
+}
+
+enum ClientExerciseStatus {
+  ASSIGNED
+  VIEWED
+  COMPLETED
+  EXPIRED
 }

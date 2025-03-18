@@ -1,42 +1,79 @@
-"use client";
+"use client"
 
-import React, { ReactNode, useEffect, useState } from "react";
+import type React from "react"
+import { createContext, useContext, useEffect, useState } from "react"
 
-interface ThemeProviderProps {
-  children: ReactNode;
-  attribute?: string;
-  defaultTheme?: "light" | "dark";
-  enableSystem?: boolean;
-  disableTransitionOnChange?: boolean;
+type Theme = "dark" | "light" | "system"
+
+type ThemeProviderProps = {
+  children: React.ReactNode
+  defaultTheme?: Theme
+  storageKey?: string
 }
 
-const ThemeProvider: React.FC<ThemeProviderProps> = ({
+type ThemeProviderState = {
+  theme: Theme
+  setTheme: (theme: Theme) => void
+}
+
+const initialState: ThemeProviderState = {
+  theme: "system",
+  setTheme: () => null,
+}
+
+const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
+
+export function ThemeProvider({
   children,
-  attribute = "data-theme",
-  defaultTheme = "light",
-  enableSystem = true,
-  disableTransitionOnChange = false,
-}) => {
-  const [theme, setTheme] = useState(defaultTheme);
+  defaultTheme = "system",
+  storageKey = "theme",
+  ...props
+}: ThemeProviderProps) {
+  // Inicializa com defaultTheme
+  const [theme, setTheme] = useState<Theme>(defaultTheme)
+  
+  // Move a lógica do localStorage para um useEffect
+  useEffect(() => {
+    const savedTheme = localStorage.getItem(storageKey) as Theme
+    if (savedTheme) {
+      setTheme(savedTheme)
+    }
+  }, [storageKey])
 
   useEffect(() => {
-    if (enableSystem) {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-      setTheme(systemTheme);
-    } else {
-      setTheme(defaultTheme);
+    const root = window.document.documentElement
+
+    root.classList.remove("light", "dark")
+
+    if (theme === "system") {
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+      root.classList.add(systemTheme)
+      return
     }
-  }, [defaultTheme, enableSystem]);
 
-  useEffect(() => {
-    const body = document.body;
-    body.setAttribute(attribute, theme);
-    if (!disableTransitionOnChange) {
-      body.style.transition = "background-color 0.3s ease, color 0.3s ease";
-    }
-  }, [theme, attribute, disableTransitionOnChange]);
+    root.classList.add(theme)
+  }, [theme])
 
-  return <>{children}</>;
-};
+  const value = {
+    theme,
+    setTheme: (theme: Theme) => {
+      localStorage.setItem(storageKey, theme)
+      setTheme(theme)
+    },
+  }
 
-export { ThemeProvider };
+  return (
+    <ThemeProviderContext.Provider {...props} value={value}>
+      {children}
+    </ThemeProviderContext.Provider>
+  )
+}
+
+export const useTheme = () => {
+  const context = useContext(ThemeProviderContext)
+
+  if (context === undefined) 
+    throw new Error("useTheme must be used within a ThemeProvider")
+
+  return context
+}
